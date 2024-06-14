@@ -45,7 +45,6 @@ public class EthereumTransactionControllerIntegrationTest {
 
     @Test
     public void testGetAllTransactions() {
-        // Add a transaction to the repository for testing
         EthereumTransaction transaction = new EthereumTransaction();
         transaction.setAddressFrom("0xAddressFrom");
         transaction.setAddressTo("0xAddressTo");

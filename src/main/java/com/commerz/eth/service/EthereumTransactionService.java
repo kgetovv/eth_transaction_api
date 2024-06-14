@@ -2,6 +2,8 @@ package com.commerz.eth.service;
 
 import com.commerz.eth.entity.EthereumTransaction;
 import com.commerz.eth.repository.EthereumTransactionRepository;
+import com.commerz.eth.service.dto.EthereumTransactionDTO;
+import com.commerz.eth.service.mapper.EthereumTransactionMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.Web3j;
@@ -18,6 +20,7 @@ public class EthereumTransactionService {
 
     private final EthereumTransactionRepository repository;
     private final Web3j web3j;
+    private final EthereumTransactionMapper transactionMapper;
 
     @Value("${ethereum.gas.limit}")
     private BigInteger gasLimit;
@@ -25,12 +28,18 @@ public class EthereumTransactionService {
     @Value("${ethereum.gas.price}")
     private BigInteger gasPriceGwei;
 
-    public EthereumTransactionService(EthereumTransactionRepository repository, Web3j web3j) {
+    public EthereumTransactionService(EthereumTransactionRepository repository, Web3j web3j, EthereumTransactionMapper transactionMapper) {
         this.repository = repository;
         this.web3j = web3j;
+        this.transactionMapper = transactionMapper;
     }
 
-    public EthereumTransaction createTransaction(String addressFrom, String addressTo, BigDecimal amount) throws Exception {
+    public EthereumTransactionDTO createTransaction(String addressFrom, String addressTo, BigDecimal amount) throws Exception {
+
+        if (gasPriceGwei == null) {
+            throw new IllegalArgumentException("Gas price (ethereum.gas.price) is not configured properly.");
+        }
+
         BigInteger value = Convert.toWei(amount, Convert.Unit.ETHER).toBigInteger();
         BigInteger gasPrice = Convert.toWei(gasPriceGwei.toString(), Convert.Unit.GWEI).toBigInteger();
 
@@ -45,10 +54,11 @@ public class EthereumTransactionService {
         ethTransaction.setAmount(amount);
         ethTransaction.setTransactionHash(transactionHash);
 
-        return repository.save(ethTransaction);
+        EthereumTransaction savedTransaction = repository.save(ethTransaction);
+        return this.transactionMapper.toDTO(savedTransaction);
     }
 
-    public List<EthereumTransaction> getAllTransactions() {
-        return repository.findAll();
+    public List<EthereumTransactionDTO> getAllTransactions() {
+        return this.repository.findAll().stream().map(this.transactionMapper::toDTO).toList();
     }
 }

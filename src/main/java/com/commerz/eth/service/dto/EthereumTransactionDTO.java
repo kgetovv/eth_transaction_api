@@ -1,4 +1,4 @@
-package com.commerz.eth.service;
+package com.commerz.eth.service.dto;
 
 import lombok.*;
 
@@ -7,8 +7,6 @@ import java.math.BigDecimal;
 @Data
 @ToString
 @EqualsAndHashCode
-@NoArgsConstructor
-@RequiredArgsConstructor
 public class EthereumTransactionDTO {
 
     private Long id;
