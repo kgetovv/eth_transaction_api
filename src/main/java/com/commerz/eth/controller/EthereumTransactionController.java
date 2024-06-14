@@ -1,10 +1,11 @@
 package com.commerz.eth.controller;
 
-import com.commerz.eth.entity.EthereumTransaction;
 import com.commerz.eth.service.EthereumTransactionService;
+import com.commerz.eth.service.dto.EthereumTransactionDTO;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -18,14 +19,12 @@ public class EthereumTransactionController {
     }
 
     @PostMapping("/create")
-    public EthereumTransaction createTransaction(@RequestParam String addressFrom,
-                                                 @RequestParam String addressTo,
-                                                 @RequestParam BigDecimal amount) throws Exception {
-        return service.createTransaction(addressFrom, addressTo, amount);
+    public ResponseEntity<EthereumTransactionDTO> createTransaction(@RequestBody @Valid EthereumTransactionDTO requestBody) throws Exception {
+        return ResponseEntity.ok(service.createTransaction(requestBody.getAddressFrom(), requestBody.getAddressTo(), requestBody.getAmount()));
     }
 
     @GetMapping("/all")
-    public List<EthereumTransaction> getAllTransactions() {
-        return service.getAllTransactions();
+    public ResponseEntity<List<EthereumTransactionDTO>> getAllTransactions() {
+        return ResponseEntity.ok(service.getAllTransactions());
     }
 }
